@@ -1,0 +1,23 @@
+Build.PL
+Changes
+MANIFEST
+META.yml # Will be created by "make dist"
+README
+lib/CGI/Application/Plugin/MessageStack.pm
+t/00-load.t
+t/01-nosession.t
+t/02-check_output.t
+t/03-scope.t
+t/04-messages.t
+t/05-clear_messages.t
+t/06-pop_message.t
+t/pod-coverage.t
+t/pod.t
+t/TestAppClear.pm
+t/TestAppMessages.pm
+t/TestAppNoSession.pm
+t/TestAppOutput.pm
+t/TestAppPop.pm
+t/TestAppScope.pm
+t/output.TMPL
+t/testplan.txt

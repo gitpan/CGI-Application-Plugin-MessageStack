@@ -1,0 +1,27 @@
+Revision history for CGI-Application-Plugin-MessageStack
+
+Thu Sep 22 13:54:41 EDT 2005  Jason@Purdy.INFO
+  * 0.10_rc1
+   * first release-worthy version of the plugin
+   * fully functional
+   * test cases for all public API's
+
+Thu Sep 15 18:45:11 EDT 2005  Jason@Purdy.INFO
+  * first_test
+   * Got the first test case in place and working
+
+Tue Sep 13 21:18:28 EDT 2005  Jason@Purdy.INFO
+  * testplan
+   * added testplan doc
+
+Tue Sep 13 21:17:44 EDT 2005  Jason@Purdy.INFO
+  * docs
+   * Added proper documentation
+  
+
+Tue Sep 13 15:56:59 EDT 2005  Jason@Purdy.INFO
+  * initial_2
+
+Tue Sep 13 15:55:45 EDT 2005  Jason@Purdy.INFO
+  * skeleton
+   * This is just the basic skeleton that Module::Starter gave me

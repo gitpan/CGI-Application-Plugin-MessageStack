@@ -1,0 +1,16 @@
+---
+name: CGI-Application-Plugin-MessageStack
+version: 0.10
+author:
+  - Jason Purdy <Jason@Purdy.INFO>
+abstract: A message stack for your CGI::Application
+license: perl
+requires:
+  CGI::Application: 4.01
+  CGI::Application::Plugin::Session: 0
+  Test::More: 0
+provides:
+  CGI::Application::Plugin::MessageStack:
+    file: lib/CGI/Application/Plugin/MessageStack.pm
+    version: 0.10
+generated_by: Module::Build version 0.26
