@@ -3,7 +3,7 @@ NAME
     CGI::Application
 
 VERSION
-    Version 0.10
+    Version 0.11
 
 SYNOPSIS
     This plugin gives you a few support methods that you can call within
@@ -53,14 +53,51 @@ SYNOPSIS
      <!-- /TMPL_LOOP -->
      ...
 
-    I don't have the experience to weigh in on how you'd do this with other
-    templates (HTDot, TT, Petal), but basically, this plugin will put in a
-    loop parameter called '__CAP_Messages'. Within each element of that
-    loop, you'll have two tags, 'classification' and 'message'.
-
     It's a good idea to turn off 'die_on_bad_params' in HTML::Template - in
     case this plugin tries to put in the parameters and they're not
     available in your template.
+
+    I had to make a special case for TT, since it doesn't support variable
+    names that start with an underscore. So for you TT folks, use
+    "CAP_Messages" instead. Here's a quick example:
+
+    Here's a quick TT example:
+
+     <style type="text/css">
+       .INFO {
+         font-weight: bold;
+       }
+       .ERROR {
+         color: red;
+       }
+     </style>
+     ...
+     <h1>Howdy!</h1>
+     [% FOREACH CAP_Messages %]
+        <div class="[% classification %]">[% message %]</div>
+     [% END %]
+     ...
+
+    If you use TT, I recommend using CAP-TT and a more recent version
+    (0.09), which supports cgiapp's load_tmpl hook and then this plugin will
+    automatically supply TT with the relevant messages. Your runmode could
+    be this simple:
+
+     sub start {
+         my $self = shift;
+         my $session = $self->session;
+         return $self->tt_process( 'output.tt' );
+     }
+
+    I don't have the experience to weigh in on how you'd do this with other
+    templates (HTDot, Petal), but basically, this plugin will put in a loop
+    parameter called '__CAP_Messages'. Within each element of that loop,
+    you'll have two tags, 'classification' and 'message'.
+
+    Note: I'm considering changing the loop's variable name (for the non-TT
+    folks), just so I don't have to make a special branch in my callback
+    code. I may just live with it, but I'm just not saavy on using cgiapp's
+    internal "__TT_OBJECT" variable.
 
 DESCRIPTION
     This plugin *NEEDS* a session object to tuck away the message(s). So

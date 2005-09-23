@@ -97,6 +97,21 @@ FILES: 05-clear_messages.t, TestAppClear.pm
     - compare the remaining messages()
 FILES: 06-pop_message.t, TestAppPop.pm
 
+* Template Toolkit Test (same as 02-check_output.t, but using CAP-TT)
+ * cgiapp w/ CAP-TT
+  * check for CAP-TT.  If ! installed, skip
+  * first request:
+    - establish/check for session
+    - check output for ! message
+  * second request:
+    - pass in session
+    - push an info message
+  * third request:
+    - pass in session
+    - check output for message
+    - check message for proper classification
+FILES: 07-template_toolkit.t, TestAppTT.pm, output.tt
+
 * pod tests
 FILES: pod.t, pod-coverage.t
 

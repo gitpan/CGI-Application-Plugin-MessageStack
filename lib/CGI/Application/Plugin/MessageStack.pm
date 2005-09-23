@@ -13,7 +13,7 @@ CGI::Application::Plugin::MessageStack - A message stack for your CGI::Applicati
 
 =head1 VERSION
 
-Version 0.10
+Version 0.11
 
 =cut
 
@@ -33,7 +33,7 @@ sub import {
     goto &Exporter::import;
 }
 
-$VERSION = '0.10';
+$VERSION = '0.11';
 
 =head1 SYNOPSIS
 
@@ -84,9 +84,38 @@ Meanwhile, in your (HTML::Template) template code:
  <!-- /TMPL_LOOP -->
  ...
 
-I don't have the experience to weigh in on how you'd do this with other templates (HTDot, TT, Petal), but basically, this plugin will put in a loop parameter called '__CAP_Messages'.  Within each element of that loop, you'll have two tags, 'classification' and 'message'.
-
 It's a good idea to turn off 'die_on_bad_params' in HTML::Template - in case this plugin tries to put in the parameters and they're not available in your template.
+
+I had to make a special case for TT, since it doesn't support variable names that start with an underscore.  So for you TT folks, use C<CAP_Messages> instead.  Here's a quick example:
+
+Here's a quick TT example:
+
+ <style type="text/css">
+   .INFO {
+     font-weight: bold;
+   }
+   .ERROR {
+     color: red;
+   }
+ </style>
+ ...
+ <h1>Howdy!</h1>
+ [% FOREACH CAP_Messages %]
+    <div class="[% classification %]">[% message %]</div>
+ [% END %]
+ ...
+
+If you use TT, I recommend using CAP-TT and a more recent version (0.09), which supports cgiapp's load_tmpl hook and then this plugin will automatically supply TT with the relevant messages.  Your runmode could be this simple:
+
+ sub start {
+     my $self = shift;
+     my $session = $self->session;
+     return $self->tt_process( 'output.tt' );
+ }
+
+I don't have the experience to weigh in on how you'd do this with other templates (HTDot, Petal), but basically, this plugin will put in a loop parameter called '__CAP_Messages'.  Within each element of that loop, you'll have two tags, 'classification' and 'message'.
+
+Note: I'm considering changing the loop's variable name (for the non-TT folks), just so I don't have to make a special branch in my callback code.  I may just live with it, but I'm just not saavy on using cgiapp's internal C<__TT_OBJECT> variable.
 
 =head1 DESCRIPTION
 
@@ -336,7 +365,13 @@ sub _pass_in_messages {
     my $current_runmode = $self->get_current_runmode();
     my $message_stack = $session->param( '__CAP_MessageStack_Stack' );
     my $messages = _filter_messages( $message_stack, { -scope => $current_runmode }, 1 );
-    $tmpl_params->{'__CAP_Messages'} = $messages if scalar( @$messages );
+    # TT doesn't support underscores at the beginning of variable names, so I'm doing a special
+    # situation here:
+    if ( $self->{'__TT_OBJECT'} ) {
+        $tmpl_params->{'CAP_Messages'} = $messages if scalar( @$messages );
+    } else {
+        $tmpl_params->{'__CAP_Messages'} = $messages if scalar( @$messages );
+    }
 }
 
 # This support method uses CAP-Session's internal special variable -- not real keen on this

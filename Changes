@@ -1,5 +1,21 @@
 Revision history for CGI-Application-Plugin-MessageStack
 
+Fri Sep 23 10:35:50 EDT 2005  Jason@Purdy.INFO
+  * 0.11_rc1
+   * added template toolkit test
+   * added branch in callback code to support different var. name for TT
+   * updated docs
+
+Thu Sep 22 14:18:23 EDT 2005  Jason@Purdy.INFO
+  * 0.10_rc3
+   * minor changes to the docs - ready to roll now!
+
+Thu Sep 22 13:58:48 EDT 2005  Jason@Purdy.INFO
+  * 0.10_rc2
+   * added README creation to Build.PL
+   * removed static README
+   * changed version number in module
+
 Thu Sep 22 13:54:41 EDT 2005  Jason@Purdy.INFO
   * 0.10_rc1
    * first release-worthy version of the plugin

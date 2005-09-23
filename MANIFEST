@@ -11,6 +11,7 @@ t/03-scope.t
 t/04-messages.t
 t/05-clear_messages.t
 t/06-pop_message.t
+t/07-template_toolkit.t
 t/pod-coverage.t
 t/pod.t
 t/TestAppClear.pm
@@ -19,5 +20,7 @@ t/TestAppNoSession.pm
 t/TestAppOutput.pm
 t/TestAppPop.pm
 t/TestAppScope.pm
+t/TestAppTT.pm
 t/output.TMPL
+t/output.tt
 t/testplan.txt
