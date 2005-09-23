@@ -3,7 +3,7 @@ NAME
     CGI::Application
 
 VERSION
-    Version 0.11
+    Version 0.12
 
 SYNOPSIS
     This plugin gives you a few support methods that you can call within
@@ -188,8 +188,7 @@ FUNCTIONS
      $self->clear_messages( -scope => 'mainpage', -classification => 'ERROR' );
      $self->clear_messages( -classification => 'ERROR' );
 
-    Clears the message stack. This method will be called automatically when
-    the Plugin puts it into your template.
+    Clears the message stack.
 
     Optionally, you can clear particular slices of the message stack, given
     a hash parameters, using the same keys as specified in the
@@ -207,10 +206,21 @@ FUNCTIONS
 AUTHOR
     Jason Purdy, "<Jason@Purdy.INFO>"
 
-SEE ALSO
-    CGI::Application
+TODO
+    Got some great feedback from the usual suspects, so I'm looking to work
+    on this stuff for future versions - mostly a config type of system:
 
-    CGI::Application::Plugin::Session
+    * Optional Session Integration - Allow a developer to specify that
+    messages are not to be stored in the session.
+    * Optional Automatic Message Clearing - Right now, clear_messages() has
+    to be called manually. How about doing it automatically, if the
+    developer would like?
+    * Configuration of template parameter names - allow the developer to
+    dictate what the parameter names are for the loop and the
+    classification/message.
+
+SEE ALSO
+    CGI::Application and CGI::Application::Plugin::Session
 
 BUGS
     Please report any bugs or feature requests to

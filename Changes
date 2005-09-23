@@ -1,5 +1,10 @@
 Revision history for CGI-Application-Plugin-MessageStack
 
+Fri Sep 23 12:36:28 EDT 2005  Jason@Purdy.INFO
+  * 0.12
+   * Added a TODO section
+   * Fixed a minor doc bug
+
 Fri Sep 23 10:35:50 EDT 2005  Jason@Purdy.INFO
   * 0.11_rc1
    * added template toolkit test

@@ -13,7 +13,7 @@ CGI::Application::Plugin::MessageStack - A message stack for your CGI::Applicati
 
 =head1 VERSION
 
-Version 0.11
+Version 0.12
 
 =cut
 
@@ -33,7 +33,7 @@ sub import {
     goto &Exporter::import;
 }
 
-$VERSION = '0.11';
+$VERSION = '0.12';
 
 =head1 SYNOPSIS
 
@@ -266,7 +266,7 @@ sub pop_message {
  $self->clear_messages( -scope => 'mainpage', -classification => 'ERROR' );
  $self->clear_messages( -classification => 'ERROR' );
 
-Clears the message stack.  This method will be called automatically when the Plugin puts it into your template.
+Clears the message stack.
 
 Optionally, you can clear particular slices of the message stack, given a hash parameters, using the same keys as specified in the push_message() method.
 
@@ -393,11 +393,23 @@ sub _check_for_session {
 
 Jason Purdy, C<< <Jason@Purdy.INFO> >>
 
+=head1 TODO
+
+Got some great feedback from the usual suspects, so I'm looking to work on this stuff for future versions - mostly a config type of system:
+
+=over
+
+=item * Optional Session Integration - Allow a developer to specify that messages are not to be stored in the session.
+
+=item * Optional Automatic Message Clearing - Right now, clear_messages() has to be called manually.  How about doing it automatically, if the developer would like?
+
+=item * Configuration of template parameter names - allow the developer to dictate what the parameter names are for the loop and the classification/message.
+
+=back
+
 =head1 SEE ALSO
 
-CGI::Application
-
-CGI::Application::Plugin::Session
+L<CGI::Application> and L<CGI::Application::Plugin::Session>
 
 =head1 BUGS
 
