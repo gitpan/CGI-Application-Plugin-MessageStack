@@ -1,6 +1,6 @@
 package CGI::Application::Plugin::MessageStack;
 
-use CGI::Application 3.21;
+use CGI::Application 4.01;
 use CGI::Application::Plugin::Session;
 
 use 5.006;
@@ -13,11 +13,11 @@ CGI::Application::Plugin::MessageStack - A message stack for your CGI::Applicati
 
 =head1 VERSION
 
-Version 0.12
+Version 0.20
 
 =cut
 
-use vars qw( @ISA $VERSION @EXPORT );
+use vars qw( @ISA $VERSION @EXPORT %config );
 
 @ISA = qw( Exporter AutoLoader );
 
@@ -26,14 +26,16 @@ use vars qw( @ISA $VERSION @EXPORT );
     pop_message
     clear_messages
     messages
+    capms_config
 );
+
 sub import {
     my $caller = scalar( caller );
     $caller->add_callback( 'load_tmpl' => \&_pass_in_messages );
     goto &Exporter::import;
 }
 
-$VERSION = '0.12';
+$VERSION = '0.20';
 
 =head1 SYNOPSIS
 
@@ -309,6 +311,29 @@ sub clear_messages {
     }
 }
 
+=head2 capms_config
+
+ $self->capms_config(
+     -automatic_clearing => 1,
+   );
+
+There is a configuration option that you, as the developer can specify:
+
+=over
+
+=item * automatic_clearing: By default, this is turned off.  If you override it with a true value, it will call clear_messages() automatically after the messages are automatically put into template.
+
+=back
+
+There are more to come (see the TODO section).
+
+=cut
+
+sub capms_config {
+    my $self = shift;
+    %config = @_;
+}
+
 sub _filter_messages {
     my ( $messages, $limiting_params, $for_template ) = @_;
     
@@ -372,6 +397,7 @@ sub _pass_in_messages {
     } else {
         $tmpl_params->{'__CAP_Messages'} = $messages if scalar( @$messages );
     }
+    $self->clear_messages( -scope => $current_runmode ) if ( $config{'-automatic_clearing'} );
 }
 
 # This support method uses CAP-Session's internal special variable -- not real keen on this
@@ -400,8 +426,6 @@ Got some great feedback from the usual suspects, so I'm looking to work on this 
 =over
 
 =item * Optional Session Integration - Allow a developer to specify that messages are not to be stored in the session.
-
-=item * Optional Automatic Message Clearing - Right now, clear_messages() has to be called manually.  How about doing it automatically, if the developer would like?
 
 =item * Configuration of template parameter names - allow the developer to dictate what the parameter names are for the loop and the classification/message.
 

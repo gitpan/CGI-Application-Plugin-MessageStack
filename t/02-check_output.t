@@ -1,4 +1,6 @@
-use Test::More tests => 8;
+use Test::More tests => 10;
+
+# the cgiapp adds one more to the test # above
 
 ## TEST PLAN ##
 # * cgiapp w/ html-template
@@ -12,6 +14,10 @@ use Test::More tests => 8;
 #     - pass in session
 #     - check output for message
 #     - check message for proper classification
+#  * fourth request:
+#     - pass in session
+#     - call messages() and compare
+#     - check output for 'succeeded'
 # FILES: 02-check_output.t, TestAppOutput.pm, output.TMPL
 
 use lib './t';
@@ -55,6 +61,13 @@ like( $output, qr/this is a test/, $test_name );
 
 $test_name = "classification was in place";
 like( $output, qr/div class="ERROR"/, $test_name );
+
+$query->param( -name => 'rm', -value => 'fourth' );
+$testapp = TestAppOutput->new( QUERY => $query );
+$output = $testapp->run;
+
+$test_name = "messages weren't automatically cleared";
+like( $output, qr/succeeded/, $test_name );
 
 # let's clean up
 $query->param( -name => 'rm', -value => 'cleanup' );

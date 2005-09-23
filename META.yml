@@ -1,6 +1,6 @@
 ---
 name: CGI-Application-Plugin-MessageStack
-version: 0.12
+version: 0.20
 author:
   - Jason Purdy <Jason@Purdy.INFO>
 abstract: A message stack for your CGI::Application
@@ -12,5 +12,5 @@ requires:
 provides:
   CGI::Application::Plugin::MessageStack:
     file: lib/CGI/Application/Plugin/MessageStack.pm
-    version: 0.12
+    version: 0.20
 generated_by: Module::Build version 0.26

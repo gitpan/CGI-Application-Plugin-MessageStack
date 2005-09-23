@@ -20,6 +20,10 @@ FILES: 01-nosession.t, TestAppNoSession.pm, output.TMPL
     - pass in session
     - check output for message
     - check message for proper classification
+ * fourth request:
+    - pass in session
+    - call messages() and compare
+    - check output for 'succeeded'
 FILES: 02-check_output.t, TestAppOutput.pm, output.TMPL
 
 * cgiapp w/ html-template
@@ -111,6 +115,20 @@ FILES: 06-pop_message.t, TestAppPop.pm
     - check output for message
     - check message for proper classification
 FILES: 07-template_toolkit.t, TestAppTT.pm, output.tt
+
+* capms_config w/ Automatic Clearing
+ * cgiapp w/ various configuration runmodes
+  * first request
+    - establish session
+    - call capms_config with -automatic_clearing
+    - push in some messages
+  * second request
+    - pass in session
+    - check output for message
+  * third request
+    - pass in session
+    - call messages() and compare
+FILES: 08-capms_config_ac.t, TestAppConfigAC.pm, output.TMPL
 
 * pod tests
 FILES: pod.t, pod-coverage.t

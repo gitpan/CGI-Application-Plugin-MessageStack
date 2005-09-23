@@ -3,7 +3,7 @@ NAME
     CGI::Application
 
 VERSION
-    Version 0.12
+    Version 0.20
 
 SYNOPSIS
     This plugin gives you a few support methods that you can call within
@@ -203,6 +203,19 @@ FUNCTIONS
 
     If you specify both, it will combine both that logic in an AND fashion.
 
+  capms_config
+     $self->capms_config(
+         -automatic_clearing => 1,
+       );
+
+    There is a configuration option that you, as the developer can specify:
+
+    * automatic_clearing: By default, this is turned off. If you override it
+    with a true value, it will call clear_messages() automatically after the
+    messages are automatically put into template.
+
+    There are more to come (see the TODO section).
+
 AUTHOR
     Jason Purdy, "<Jason@Purdy.INFO>"
 
@@ -212,9 +225,6 @@ TODO
 
     * Optional Session Integration - Allow a developer to specify that
     messages are not to be stored in the session.
-    * Optional Automatic Message Clearing - Right now, clear_messages() has
-    to be called manually. How about doing it automatically, if the
-    developer would like?
     * Configuration of template parameter names - allow the developer to
     dictate what the parameter names are for the loop and the
     classification/message.

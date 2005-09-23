@@ -2,6 +2,8 @@ package TestAppOutput;
 
 use base 'CGI::Application';
 
+use Test::More;
+
 use CGI::Application::Plugin::Session;
 use CGI::Application::Plugin::MessageStack;
 
@@ -22,7 +24,7 @@ use CGI::Application::Plugin::MessageStack;
 sub setup {
     my $self = shift;
     $self->mode_param( 'rm' );
-    $self->run_modes( [ qw( start second third cleanup ) ] );
+    $self->run_modes( [ qw( start second third fourth cleanup ) ] );
     $self->tmpl_path( './t' );
 }
 
@@ -61,6 +63,22 @@ sub third {
     my $session = $self->session;
     my $template = $self->load_tmpl( 'output.TMPL', 'die_on_bad_params' => 0 );
     $template->output;
+}
+
+sub fourth {
+    my $self = shift;
+    my $session = $self->session;
+    my $messages = $self->messages();
+    
+    my $expectation = [
+            { -message => 'this is a test', -classification => 'ERROR' },
+        ];
+
+    my $message = 'failed';
+    if ( is_deeply( $expectation, $messages, undef ) ) {
+        $message = 'succeeded';
+    }
+    return $message;
 }
 
 sub cleanup {
