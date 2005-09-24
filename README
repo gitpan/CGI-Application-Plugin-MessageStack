@@ -3,7 +3,7 @@ NAME
     CGI::Application
 
 VERSION
-    Version 0.20
+    Version 0.30
 
 SYNOPSIS
     This plugin gives you a few support methods that you can call within
@@ -46,7 +46,7 @@ SYNOPSIS
      </style>
      ...
      <h1>Howdy!</h1>
-     <!-- TMPL_LOOP NAME="__CAP_Messages" -->
+     <!-- TMPL_LOOP NAME="CAP_Messages" -->
        <div class="<!-- TMPL_VAR NAME="classification" -->">
          <!-- TMPL_VAR NAME="message" -->
        </div>
@@ -56,10 +56,6 @@ SYNOPSIS
     It's a good idea to turn off 'die_on_bad_params' in HTML::Template - in
     case this plugin tries to put in the parameters and they're not
     available in your template.
-
-    I had to make a special case for TT, since it doesn't support variable
-    names that start with an underscore. So for you TT folks, use
-    "CAP_Messages" instead. Here's a quick example:
 
     Here's a quick TT example:
 
@@ -91,13 +87,13 @@ SYNOPSIS
 
     I don't have the experience to weigh in on how you'd do this with other
     templates (HTDot, Petal), but basically, this plugin will put in a loop
-    parameter called '__CAP_Messages'. Within each element of that loop,
+    parameter called 'CAP_Messages'. Within each element of that loop,
     you'll have two tags, 'classification' and 'message'.
 
-    Note: I'm considering changing the loop's variable name (for the non-TT
-    folks), just so I don't have to make a special branch in my callback
-    code. I may just live with it, but I'm just not saavy on using cgiapp's
-    internal "__TT_OBJECT" variable.
+    NOTE: I have broken backwards compatibility with this release (0.30) and
+    the loop parameter's default name is now 'CAP_Messages'. If you used the
+    old __CAP_Messages or want to use another name, feel free to use the
+    capms_config to override the "-loop_param_name".
 
 DESCRIPTION
     This plugin *NEEDS* a session object to tuck away the message(s). So
@@ -205,29 +201,70 @@ FUNCTIONS
 
   capms_config
      $self->capms_config(
-         -automatic_clearing => 1,
+         -automatic_clearing            => 1,
+         -dont_use_session              => 1,
+         -loop_param_name               => 'MyOwnLoopName',
+         -message_param_name            => 'MyOwnMessageName',
+         -classification_param_name     => 'MyOwnClassificationName',
        );
 
     There is a configuration option that you, as the developer can specify:
 
-    * automatic_clearing: By default, this is turned off. If you override it
-    with a true value, it will call clear_messages() automatically after the
-    messages are automatically put into template.
+    * -automatic_clearing: By default, this is turned off. If you override
+    it with a true value, it will call clear_messages() automatically after
+    the messages are automatically put into template.
+    * -dont_use_session: This will override this Plugin's dependence on
+    CGI::Application::Plugin::Session and instead, temporarily store the
+    message data such that it will be available to templates within the same
+    web request, but no further. If you're running your cgiapp under a
+    persistent state (mod_perl), we'll also make sure your messages are gone
+    by the end of the request.
+    * -loop_param_name: This will override the default __CAP_Messages (or
+    CAP_Messages for TT users) name for the loop of messages, which is only
+    used for the "load_tmpl" callback. Meaning, this configuration will only
+    impact your template code. So if you use the 'MyOwnLoopName' above, then
+    your template code (for HTML::Template users) should look like:
+         <!-- TMPL_LOOP NAME="MyOwnLoopName" -->
+         ...
+         <!-- /TMPL_LOOP -->
 
-    There are more to come (see the TODO section).
+    * -message_param_name: This will override the default '-message' in both
+    the template code as well as the keys in each hashref of the arrayref
+    that's returned by the messages() function. So a call to messages() may
+    return:
+         [ { 'MyOwnMessageName' => 'this is just a test' }, ... ]
+
+        instead of:
+
+         [ { '-message' => 'this is just a test' }, ... ]
+
+        Likewise, your templates will need to use your parameter name:
+
+         <!-- TMPL_LOOP NAME="MyOwnLoopName" -->
+           Here's the message: <!-- TMPL_VAR NAME="MyOwnMessageName" -->
+         <!-- /TMPL_LOOP -->
+
+    * -classification_param_name: Just like the "-message_param_name"
+    parameter - this will override the default '-classification' key in both
+    the template code as well as the keys in each hashref of the arrayref
+    that's returned by the messages() function. So a call to messages() may
+    return:
+         [ { 'MyOwnClassificationName' => 'ERROR', 'MyOwnMessageName' => 'this is just a test' }, ... ]
+
+        instead of:
+
+         [ { '-classification' => 'ERROR', '-message' => 'this is just a test' }, ... ]
+
+        Likewise, your templates will need to use your parameter name:
+
+         <!-- TMPL_LOOP NAME="MyOwnLoopName" -->
+            <div class="<!-- TMPL_VAR NAME="MyOwnClassificationName" -->">
+               Here's the message: <!-- TMPL_VAR NAME="MyOwnMessageName" -->
+            </div>
+         <!-- /TMPL_LOOP -->
 
 AUTHOR
     Jason Purdy, "<Jason@Purdy.INFO>"
-
-TODO
-    Got some great feedback from the usual suspects, so I'm looking to work
-    on this stuff for future versions - mostly a config type of system:
-
-    * Optional Session Integration - Allow a developer to specify that
-    messages are not to be stored in the session.
-    * Configuration of template parameter names - allow the developer to
-    dictate what the parameter names are for the loop and the
-    classification/message.
 
 SEE ALSO
     CGI::Application and CGI::Application::Plugin::Session

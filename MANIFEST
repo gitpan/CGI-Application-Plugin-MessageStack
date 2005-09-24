@@ -13,6 +13,8 @@ t/05-clear_messages.t
 t/06-pop_message.t
 t/07-template_toolkit.t
 t/08-capms_config_ac.t
+t/09-capms_config_params.t
+t/10-capms_config_no_session.t
 t/pod-coverage.t
 t/pod.t
 t/TestAppClear.pm
@@ -23,6 +25,9 @@ t/TestAppPop.pm
 t/TestAppScope.pm
 t/TestAppTT.pm
 t/TestAppConfigAC.pm
+t/TestAppConfigParams.pm
+t/TestAppConfigNoSession.pm
 t/output.TMPL
+t/output_params.TMPL
 t/output.tt
 t/testplan.txt

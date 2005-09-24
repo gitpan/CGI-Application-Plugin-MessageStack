@@ -1,5 +1,27 @@
 Revision history for CGI-Application-Plugin-MessageStack
 
+Fri Sep 23 22:36:56 EDT 2005  Jason@Purdy.INFO
+  * 0.30
+   * Added param name overrides in capms_config
+   * Added optional session in capms_config
+   * Added test scripts
+   * Changed default loop param name to CAP_Messages (no preceding underscores)
+   * Updated docs
+
+Fri Sep 23 15:55:02 EDT 2005  Jason@Purdy.INFO
+  * 0.21
+   * Added __END__ to module
+   * Added create_makefile_pl to Build.PL
+   * Updated docs
+
+Fri Sep 23 14:30:59 EDT 2005  Jason@Purdy.INFO
+  * 0.20
+   * Added capms_config w/ support for automatic_clearing
+   * Added test script for automatic_clearing
+   * Added test case for non-automatic_clearing (02-check_output.t)
+   * Updated cgiapp requirement to 4 in Build.PL
+   * Added any orphan cgisess files in the test dir to cleanup
+
 Fri Sep 23 12:36:28 EDT 2005  Jason@Purdy.INFO
   * 0.12
    * Added a TODO section

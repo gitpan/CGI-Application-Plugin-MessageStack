@@ -117,7 +117,7 @@ FILES: 06-pop_message.t, TestAppPop.pm
 FILES: 07-template_toolkit.t, TestAppTT.pm, output.tt
 
 * capms_config w/ Automatic Clearing
- * cgiapp w/ various configuration runmodes
+ * cgiapp w/ -automatic_clearing config
   * first request
     - establish session
     - call capms_config with -automatic_clearing
@@ -129,6 +129,33 @@ FILES: 07-template_toolkit.t, TestAppTT.pm, output.tt
     - pass in session
     - call messages() and compare
 FILES: 08-capms_config_ac.t, TestAppConfigAC.pm, output.TMPL
+
+* capms_config w/ parameter name overrides
+ * cgiapp w/ parameter name configs
+  * first request
+    - establish session
+    - call capms_config with parameter name overrides
+    - push in some messages
+  * second request
+    - pass in session
+    - load original template (output.TMPL) and check for no message
+  * third request
+    - pass in session
+    - load in different template (output_params.TMPL) and check for message
+  * fourth request
+    - pass in session
+    - call messages() and compare
+FILES: 09-capms_config_params.t, TestAppConfigParams.pm, output.TMPL, output_params.TMPL
+
+* capms_config w/ dont_use_session
+ * cgiapp w/ dont_use_session config
+  * first request
+    - push in some messages
+    - check for no messages
+    - load_tmpl and check for output
+  * second request
+    - load_tmpl and check for no messages in output
+FILES: 10-capms_config_no_session.t, TestAppConfigNoSession.pm, output.TMPL
 
 * pod tests
 FILES: pod.t, pod-coverage.t

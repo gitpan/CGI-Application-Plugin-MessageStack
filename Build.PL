@@ -13,6 +13,7 @@ my $builder = Module::Build->new(
         'CGI::Application'                      => 4.01,
     },
     create_readme       => 1,
+    create_makefile_pl	=> 'traditional',
     add_to_cleanup      => [ 'CGI-Application-Plugin-MessageStack-*', 't/cgisess_*' ],
 );
 

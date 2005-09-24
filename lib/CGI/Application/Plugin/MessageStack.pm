@@ -1,7 +1,6 @@
 package CGI::Application::Plugin::MessageStack;
 
 use CGI::Application 4.01;
-use CGI::Application::Plugin::Session;
 
 use 5.006;
 use warnings;
@@ -13,7 +12,7 @@ CGI::Application::Plugin::MessageStack - A message stack for your CGI::Applicati
 
 =head1 VERSION
 
-Version 0.20
+Version 0.30
 
 =cut
 
@@ -35,7 +34,7 @@ sub import {
     goto &Exporter::import;
 }
 
-$VERSION = '0.20';
+$VERSION = '0.30';
 
 =head1 SYNOPSIS
 
@@ -79,7 +78,7 @@ Meanwhile, in your (HTML::Template) template code:
  </style>
  ...
  <h1>Howdy!</h1>
- <!-- TMPL_LOOP NAME="__CAP_Messages" -->
+ <!-- TMPL_LOOP NAME="CAP_Messages" -->
    <div class="<!-- TMPL_VAR NAME="classification" -->">
      <!-- TMPL_VAR NAME="message" -->
    </div>
@@ -87,8 +86,6 @@ Meanwhile, in your (HTML::Template) template code:
  ...
 
 It's a good idea to turn off 'die_on_bad_params' in HTML::Template - in case this plugin tries to put in the parameters and they're not available in your template.
-
-I had to make a special case for TT, since it doesn't support variable names that start with an underscore.  So for you TT folks, use C<CAP_Messages> instead.  Here's a quick example:
 
 Here's a quick TT example:
 
@@ -115,9 +112,9 @@ If you use TT, I recommend using CAP-TT and a more recent version (0.09), which 
      return $self->tt_process( 'output.tt' );
  }
 
-I don't have the experience to weigh in on how you'd do this with other templates (HTDot, Petal), but basically, this plugin will put in a loop parameter called '__CAP_Messages'.  Within each element of that loop, you'll have two tags, 'classification' and 'message'.
+I don't have the experience to weigh in on how you'd do this with other templates (HTDot, Petal), but basically, this plugin will put in a loop parameter called 'CAP_Messages'.  Within each element of that loop, you'll have two tags, 'classification' and 'message'.
 
-Note: I'm considering changing the loop's variable name (for the non-TT folks), just so I don't have to make a special branch in my callback code.  I may just live with it, but I'm just not saavy on using cgiapp's internal C<__TT_OBJECT> variable.
+NOTE: I have broken backwards compatibility with this release (0.30) and the loop parameter's default name is now 'CAP_Messages'.  If you used the old __CAP_Messages or want to use another name, feel free to use the capms_config to override the C<-loop_param_name>.
 
 =head1 DESCRIPTION
 
@@ -191,9 +188,30 @@ sub messages {
     my $session = _check_for_session( $self );
     my %limiting_params = @_;
     my $message_array = $session->param( '__CAP_MessageStack_Stack' ) || [];
-    $message_array = _filter_messages( $message_array, \%limiting_params )
-        if ( $limiting_params{'-scope'} || $limiting_params{'-classification'} );
-    
+    if ( $limiting_params{'-scope'} || $limiting_params{'-classification'} ) {
+        $message_array = _filter_messages( $message_array, \%limiting_params )
+    } else {
+        # if the dev config'd different message or classification names, i need to do
+        # 'em by hand here ... _filter_messages() would do that, but only if they
+        # wanted a slice.  This is if they want everything.
+        if ( my $class_key = $config{'-classification_param_name'} ) {
+            map {
+                    if ( $_->{'-classification'} ) {
+                        $_->{$class_key} = $_->{'-classification'};
+                        delete $_->{'-classification'};
+                    }
+                } @$message_array;
+        }
+        if ( my $message_key = $config{'-message_param_name'} ) {
+            map {
+                    if ( $_->{'-message'} ) {
+                        $_->{$message_key} = $_->{'-message'};
+                        delete $_->{'-message'};
+                    }
+                } @$message_array;
+        }
+    }
+
     return $message_array;
 }
 
@@ -218,7 +236,12 @@ sub pop_message {
     my %limiting_params = @_;
     my $message;
     my $message_array = $session->param( '__CAP_MessageStack_Stack' );
-    $session->clear( [ '__CAP_MessageStack_Stack' ] );
+
+    if ( $config{'-dont_use_session'} ) {
+        $session->param( '__CAP_MessageStack_Stack' => undef );
+    } else {
+        $session->clear( [ '__CAP_MessageStack_Stack' ] );
+    }
 
     if ( $limiting_params{'-scope'} || $limiting_params{'-classification'} ) {
         my $index = scalar( @$message_array ) - 1;
@@ -307,25 +330,69 @@ sub clear_messages {
         }
         $session->param( '__CAP_MessageStack_Stack' => $nonmatching_messages );
     } else {
-        $session->clear( [ '__CAP_MessageStack_Stack' ] );
+        if ( $config{'-dont_use_session'} ) {
+            $session->param( '__CAP_MessageStack_Stack' => undef );
+        } else {
+            $session->clear( [ '__CAP_MessageStack_Stack' ] );
+        }
     }
 }
 
 =head2 capms_config
 
  $self->capms_config(
-     -automatic_clearing => 1,
+     -automatic_clearing            => 1,
+     -dont_use_session              => 1,
+     -loop_param_name               => 'MyOwnLoopName',
+     -message_param_name            => 'MyOwnMessageName',
+     -classification_param_name     => 'MyOwnClassificationName',
    );
 
 There is a configuration option that you, as the developer can specify:
 
 =over
 
-=item * automatic_clearing: By default, this is turned off.  If you override it with a true value, it will call clear_messages() automatically after the messages are automatically put into template.
+=item * -automatic_clearing: By default, this is turned off.  If you override it with a true value, it will call clear_messages() automatically after the messages are automatically put into template.
+
+=item * -dont_use_session: This will override this Plugin's dependence on CGI::Application::Plugin::Session and instead, temporarily store the message data such that it will be available to templates within the same web request, but no further.  If you're running your cgiapp under a persistent state (mod_perl), we'll also make sure your messages are gone by the end of the request.
+
+=item * -loop_param_name: This will override the default __CAP_Messages (or CAP_Messages for TT users) name for the loop of messages, which is only used for the C<load_tmpl> callback.  Meaning, this configuration will only impact your template code.  So if you use the 'MyOwnLoopName' above, then your template code (for HTML::Template users) should look like:
+
+ <!-- TMPL_LOOP NAME="MyOwnLoopName" -->
+ ...
+ <!-- /TMPL_LOOP -->
+
+=item * -message_param_name: This will override the default '-message' in both the template code B<as well as> the keys in each hashref of the arrayref that's returned by the messages() function.  So a call to messages() may return:
+
+ [ { 'MyOwnMessageName' => 'this is just a test' }, ... ]
+
+instead of:
+
+ [ { '-message' => 'this is just a test' }, ... ]
+
+Likewise, your templates will need to use your parameter name:
+
+ <!-- TMPL_LOOP NAME="MyOwnLoopName" -->
+   Here's the message: <!-- TMPL_VAR NAME="MyOwnMessageName" -->
+ <!-- /TMPL_LOOP -->
+
+=item * -classification_param_name: Just like the C<-message_param_name> parameter - this will override the default '-classification' key in both the template code B<as well as> the keys in each hashref of the arrayref that's returned by the messages() function.  So a call to messages() may return:
+
+ [ { 'MyOwnClassificationName' => 'ERROR', 'MyOwnMessageName' => 'this is just a test' }, ... ]
+
+instead of:
+
+ [ { '-classification' => 'ERROR', '-message' => 'this is just a test' }, ... ]
+
+Likewise, your templates will need to use your parameter name:
+
+ <!-- TMPL_LOOP NAME="MyOwnLoopName" -->
+    <div class="<!-- TMPL_VAR NAME="MyOwnClassificationName" -->">
+       Here's the message: <!-- TMPL_VAR NAME="MyOwnMessageName" -->
+    </div>
+ <!-- /TMPL_LOOP -->
 
 =back
-
-There are more to come (see the TODO section).
 
 =cut
 
@@ -336,8 +403,11 @@ sub capms_config {
 
 sub _filter_messages {
     my ( $messages, $limiting_params, $for_template ) = @_;
-    
+
     my $matching_messages = [];
+    my $class_key = $config{'-classification_param_name'} || 'classification';
+    my $message_key = $config{'-message_param_name'} || 'message';
+
     if ( $limiting_params->{'-classification'} && $limiting_params->{'-scope'} ) {
         foreach my $message_hashref ( @$messages ) {
             next if !$message_hashref->{'-classification'} || $message_hashref->{'-classification'} ne $limiting_params->{'-classification'};
@@ -346,8 +416,8 @@ sub _filter_messages {
             # so the template code doesn't need/use 'em...
             if ( $for_template ) {
                 push @$matching_messages, {
-                        'classification'    => $message_hashref->{'-classification'},
-                        'message'           => $message_hashref->{'-message'},
+                        $class_key    => $message_hashref->{'-classification'},
+                        $message_key  => $message_hashref->{'-message'},
                     };
             } else {
                 push @$matching_messages, $message_hashref;
@@ -358,8 +428,8 @@ sub _filter_messages {
             next if !$message_hashref->{'-classification'} || $message_hashref->{'-classification'} ne $limiting_params->{'-classification'};
             if ( $for_template ) {
                 push @$matching_messages, {
-                        'classification'    => $message_hashref->{'-classification'},
-                        'message'           => $message_hashref->{'-message'},
+                        $class_key      => $message_hashref->{'-classification'},
+                        $message_key    => $message_hashref->{'-message'},
                     };
             } else {
                 push @$matching_messages, $message_hashref;
@@ -370,15 +440,15 @@ sub _filter_messages {
             next if $message_hashref->{'-scope'} && $message_hashref->{'-scope'} ne $limiting_params->{'-scope'};
             if ( $for_template ) {
                 push @$matching_messages, {
-                        'classification'    => $message_hashref->{'-classification'},
-                        'message'           => $message_hashref->{'-message'},
+                        $class_key    => $message_hashref->{'-classification'},
+                        $message_key  => $message_hashref->{'-message'},
                     };
             } else {
                 push @$matching_messages, $message_hashref;
             }
         }
     }
-    
+
     return $matching_messages;
 }
 
@@ -390,46 +460,37 @@ sub _pass_in_messages {
     my $current_runmode = $self->get_current_runmode();
     my $message_stack = $session->param( '__CAP_MessageStack_Stack' );
     my $messages = _filter_messages( $message_stack, { -scope => $current_runmode }, 1 );
-    # TT doesn't support underscores at the beginning of variable names, so I'm doing a special
-    # situation here:
-    if ( $self->{'__TT_OBJECT'} ) {
-        $tmpl_params->{'CAP_Messages'} = $messages if scalar( @$messages );
-    } else {
-        $tmpl_params->{'__CAP_Messages'} = $messages if scalar( @$messages );
-    }
+    my $loop_name = $config{'-loop_param_name'} || 'CAP_Messages';
+
+    $tmpl_params->{ $loop_name } = $messages if scalar( @$messages );
     $self->clear_messages( -scope => $current_runmode ) if ( $config{'-automatic_clearing'} );
 }
 
-# This support method uses CAP-Session's internal special variable -- not real keen on this
-# but for some reason, I can't use $self->session... This needs some work.
-# This method will return the session object.
+# This method will return an object, depending on if the developer wants to
+# use a session (the default behavior) or just the cgiapp itself.
 sub _check_for_session {
     my $self = shift;
-    my $session = undef;
-    eval {
-        $session = $self->session;
-    };
+    my $session_object = undef;
 
-    die "No session object!  This module depends on CGI::Application::Plugin::Session!"
-        if ( $@ || ! $session || ref( $session ) !~ /^CGI::Session/ );
-    return $session;
+    if ( $config{'-dont_use_session'} ) {
+        $session_object = $self;
+    } else {
+        # dynamic importing of CAP-Session
+        eval {
+            require CGI::Application::Plugin::Session;
+            CGI::Application::Plugin::Session->import();
+            $session_object = $self->session;
+        };
+        if ( $@ || ! $session_object ) {
+            die "No session object!  This module depends on CGI::Application::Plugin::Session! (or you need to use the -dont_use_session config parameter)"
+        }
+    }
+    return $session_object;
 }
 
 =head1 AUTHOR
 
 Jason Purdy, C<< <Jason@Purdy.INFO> >>
-
-=head1 TODO
-
-Got some great feedback from the usual suspects, so I'm looking to work on this stuff for future versions - mostly a config type of system:
-
-=over
-
-=item * Optional Session Integration - Allow a developer to specify that messages are not to be stored in the session.
-
-=item * Configuration of template parameter names - allow the developer to dictate what the parameter names are for the loop and the classification/message.
-
-=back
 
 =head1 SEE ALSO
 
@@ -459,3 +520,5 @@ under the same terms as Perl itself.
 =cut
 
 1; # End of CGI::Application::Plugin::MessageStack
+
+__END__
