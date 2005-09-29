@@ -12,7 +12,7 @@ CGI::Application::Plugin::MessageStack - A message stack for your CGI::Applicati
 
 =head1 VERSION
 
-Version 0.30
+Version 0.31
 
 =cut
 
@@ -34,7 +34,7 @@ sub import {
     goto &Exporter::import;
 }
 
-$VERSION = '0.30';
+$VERSION = '0.31';
 
 =head1 SYNOPSIS
 
@@ -118,7 +118,7 @@ NOTE: I have broken backwards compatibility with this release (0.30) and the loo
 
 =head1 DESCRIPTION
 
-This plugin *NEEDS* a session object to tuck away the message(s).  So please use this in conjunction with CGI::Application::Plugin::Session.
+This plugin by default needs a session object to tuck away the message(s).  It's recommended that you use this in conjunction with CGI::Application::Plugin::Session.  You can opt to not have the messages persist and thereby, not use CAP-Session by using the C<-dont_use_session> option in the C<capms_config> method.
 
 This plugin hooks into cgiapp's load_tmpl method and if you've pushed any messages in the stack, will automatically add the message parameters.
 

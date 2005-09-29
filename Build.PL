@@ -9,8 +9,10 @@ my $builder = Module::Build->new(
     dist_version_from   => 'lib/CGI/Application/Plugin/MessageStack.pm',
     requires => {
         'Test::More'                            => 0,
-        'CGI::Application::Plugin::Session'     => 0,
         'CGI::Application'                      => 4.01,
+    },
+    recommends => {
+        'CGI::Application::Plugin::Session'     => 0,
     },
     create_readme       => 1,
     create_makefile_pl	=> 'traditional',

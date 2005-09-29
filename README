@@ -3,7 +3,7 @@ NAME
     CGI::Application
 
 VERSION
-    Version 0.30
+    Version 0.31
 
 SYNOPSIS
     This plugin gives you a few support methods that you can call within
@@ -96,8 +96,11 @@ SYNOPSIS
     capms_config to override the "-loop_param_name".
 
 DESCRIPTION
-    This plugin *NEEDS* a session object to tuck away the message(s). So
-    please use this in conjunction with CGI::Application::Plugin::Session.
+    This plugin by default needs a session object to tuck away the
+    message(s). It's recommended that you use this in conjunction with
+    CGI::Application::Plugin::Session. You can opt to not have the messages
+    persist and thereby, not use CAP-Session by using the
+    "-dont_use_session" option in the "capms_config" method.
 
     This plugin hooks into cgiapp's load_tmpl method and if you've pushed
     any messages in the stack, will automatically add the message

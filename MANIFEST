@@ -3,6 +3,7 @@ Changes
 MANIFEST
 META.yml # Will be created by "make dist"
 README
+Makefile.PL # Will be created by 'make dist'
 lib/CGI/Application/Plugin/MessageStack.pm
 t/00-load.t
 t/01-nosession.t
