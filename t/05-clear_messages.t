@@ -1,4 +1,4 @@
-use Test::More tests => 8;
+use Test::More;
 
 # that 8 above -- I'm using Test::More in the TestAppMessages class for the
 # convenient is_deeply method.  So that doubles the number of tests below.
@@ -24,6 +24,13 @@ use Test::More tests => 8;
 
 use lib './t';
 use strict;
+
+BEGIN {
+    eval "use CGI::Application::Plugin::Session";
+    plan skip_all => "CGI::Application::Plugin::Session required for this test" if $@;
+}
+
+plan tests => 8;
 
 $ENV{CGI_APP_RETURN_ONLY} = 1;
 

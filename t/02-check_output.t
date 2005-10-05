@@ -1,4 +1,4 @@
-use Test::More tests => 10;
+use Test::More;
 
 # the cgiapp adds one more to the test # above
 
@@ -22,6 +22,13 @@ use Test::More tests => 10;
 
 use lib './t';
 use strict;
+
+BEGIN {
+    eval "use CGI::Application::Plugin::Session";
+    plan skip_all => "CGI::Application::Plugin::Session required for this test" if $@;
+}
+
+plan tests => 10;
 
 $ENV{CGI_APP_RETURN_ONLY} = 1;
 

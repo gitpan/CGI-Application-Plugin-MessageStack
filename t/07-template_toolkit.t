@@ -20,19 +20,13 @@ use strict;
 
 $ENV{CGI_APP_RETURN_ONLY} = 1;
 
-
 BEGIN {
-    eval {
-        require CGI::Application::Plugin::TT;
-    };
-
-    if ($@) {
-        plan skip_all => "CGI::Application::Plugin::TT required for these tests";
-        exit;
-    }
-    use CGI;
-    use TestAppTT;
+    eval "use CGI::Application::Plugin::TT 0.09";
+    plan skip_all => "CGI::Application::Plugin::TT 0.09 required for testing TT integration" if $@;
 }
+
+use CGI;
+use TestAppTT;
 
 plan tests => 8;
 

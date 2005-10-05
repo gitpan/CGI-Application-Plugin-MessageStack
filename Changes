@@ -1,5 +1,12 @@
 Revision history for CGI-Application-Plugin-MessageStack
 
+Wed Oct  5 10:03:50 EDT 2005  Jason@Purdy.INFO
+  * 0.32
+   * Fixed test file for TT (bad failures for versions < 0.09)
+   * Added CAP-TT 0.09 to Build.PL (recommends)
+     - Thanks, Shawn!
+   * Fixed test files in case someone doesn't have CAP-Session installed
+
 Thu Sep 29 09:32:52 EDT 2005  Jason@Purdy.INFO
   * 0.31
    * Added Makefile.PL to MANIFEST so CPAN.pm & cpanplus will

@@ -1,6 +1,4 @@
-use Test::More tests => 9;
-
-# The cgiapp adds 1 more test to the mix...
+use Test::More;
 
 ## TEST PLAN ##
 #* capms_config w/ parameter name overrides
@@ -23,7 +21,16 @@ use Test::More tests => 9;
 use lib './t';
 use strict;
 
+BEGIN {
+    eval "use CGI::Application::Plugin::Session";
+    plan skip_all => "CGI::Application::Plugin::Session required for this test" if $@;
+}
+
+# The cgiapp adds 1 more test to the mix...
+plan tests => 9;
+
 $ENV{CGI_APP_RETURN_ONLY} = 1;
+
 
 use CGI;
 use TestAppConfigParams;

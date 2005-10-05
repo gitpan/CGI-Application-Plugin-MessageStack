@@ -13,6 +13,7 @@ my $builder = Module::Build->new(
     },
     recommends => {
         'CGI::Application::Plugin::Session'     => 0,
+	'CGI::Application::Plugin::TT'		=> 0.09,
     },
     create_readme       => 1,
     create_makefile_pl	=> 'traditional',
