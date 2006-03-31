@@ -12,7 +12,7 @@ CGI::Application::Plugin::MessageStack - A message stack for your CGI::Applicati
 
 =head1 VERSION
 
-Version 0.32
+Version 0.33
 
 =cut
 
@@ -34,7 +34,7 @@ sub import {
     goto &Exporter::import;
 }
 
-$VERSION = '0.32';
+$VERSION = '0.33';
 
 =head1 SYNOPSIS
 
@@ -251,15 +251,27 @@ sub pop_message {
             my $match_found = 0;
 
             if ( $limiting_params{'-scope'} && $limiting_params{'-classification'} ) {
-                if ( ( ! $message_hashref->{'-scope'} || $message_hashref->{'-scope'} eq $limiting_params{'-scope'} ) && ( $message_hashref->{'-classification'} && $message_hashref->{'-classification'} eq $limiting_params{'-classification'} ) ) {
+                if ( ( ! $message_hashref->{'-scope'} || ( ( ref( $message_hashref->{'-scope'} ) && grep { $_ eq $limiting_params{'-scope'} } @{$message_hashref->{'-scope'}}  ) || ( ! ref ( $message_hashref->{'-scope'} ) && $message_hashref->{'-scope'} eq $limiting_params{'-scope'} ) ) ) && ( $message_hashref->{'-classification'} && $message_hashref->{'-classification'} eq $limiting_params{'-classification'} ) ) {
                     $match_found = 1;
                     $message = $message_hashref->{'-message'};
                 }
             } elsif ( $limiting_params{'-scope'} ) {
-                if ( ! $message_hashref->{'-scope'} || $message_hashref->{'-scope'} eq $limiting_params{'-scope'} ) {
+                if ( ! $message_hashref->{'-scope'} ) {
                     $match_found = 1;
                     $message = $message_hashref->{'-message'};
-                }
+                } else {
+		    if ( ref( $message_hashref->{'-scope'} ) ) {
+		        if ( grep { $_ eq $limiting_params{'-scope'} } @{$message_hashref->{'-scope'}} ) {
+			    $match_found = 1;
+			    $message = $message_hashref->{'-message'};
+			}
+		    } else {
+		        if ( $message_hashref->{'-scope'} eq $limiting_params{'-scope'} ) {
+			    $match_found = 1;
+			    $message = $message_hashref->{'-message'};
+			}
+		    }
+		}
             } elsif ( $limiting_params{'-classification'} ) {
                 if ( $message_hashref->{'-classification'} && $message_hashref->{'-classification'} eq $limiting_params{'-classification'} ) {
                     $match_found = 1;
@@ -313,7 +325,7 @@ sub clear_messages {
         my $nonmatching_messages = [];
         if ( $limiting_params{'-classification'} && $limiting_params{'-scope'} ) {
             foreach my $message_hashref ( @$message_array ) {
-                next if ( $message_hashref->{'-classification'} && $message_hashref->{'-classification'} eq $limiting_params{'-classification'} ) && ( !$message_hashref->{'-scope'} || ( $message_hashref->{'-scope'} && $message_hashref->{'-scope'} eq $limiting_params{'-scope'} ) );
+                next if ( $message_hashref->{'-classification'} && $message_hashref->{'-classification'} eq $limiting_params{'-classification'} ) && ( !$message_hashref->{'-scope'} || ( ( ref( $message_hashref->{'-scope'} ) && grep { $_ eq $limiting_params{'-scope'} } @{$message_hashref->{'-scope'}} ) || ( ! ref( $message_hashref->{'-scope'} ) && $message_hashref->{'-scope'} eq $limiting_params{'-scope'} ) ) );
                 push @$nonmatching_messages, $message_hashref;
             }
         } elsif ( $limiting_params{'-classification'} ) {
@@ -324,7 +336,11 @@ sub clear_messages {
         } elsif ( $limiting_params{'-scope'} ) {
             foreach my $message_hashref ( @$message_array ) {
                 next if ! $message_hashref->{'-scope'}; # taking out global scopes
-                next if $message_hashref->{'-scope'} eq $limiting_params{'-scope'}; # taking out matching scopes
+		if ( ref( $message_hashref->{'-scope'} ) ) {
+		    next if grep { $_ eq $limiting_params{'-scope'} } @{$message_hashref->{'-scope'}};
+		} else {
+                    next if $message_hashref->{'-scope'} eq $limiting_params{'-scope'}; # taking out matching scopes
+		}
                 push @$nonmatching_messages, $message_hashref;
             }
         }
@@ -411,7 +427,11 @@ sub _filter_messages {
     if ( $limiting_params->{'-classification'} && $limiting_params->{'-scope'} ) {
         foreach my $message_hashref ( @$messages ) {
             next if !$message_hashref->{'-classification'} || $message_hashref->{'-classification'} ne $limiting_params->{'-classification'};
-            next if $message_hashref->{'-scope'} && $message_hashref->{'-scope'} ne $limiting_params->{'-scope'};
+	    if ( ref( $message_hashref->{'-scope'} ) ) {
+	        next if ! grep { $_ eq $limiting_params->{'-scope'} } @{$message_hashref->{'-scope'}};
+	    } else {
+                next if $message_hashref->{'-scope'} && $message_hashref->{'-scope'} ne $limiting_params->{'-scope'};
+            }
             # i'm beginning to hate the dash now ... now i have to take 'em out
             # so the template code doesn't need/use 'em...
             if ( $for_template ) {
@@ -437,7 +457,11 @@ sub _filter_messages {
         }
     } elsif ( $limiting_params->{'-scope'} ) {
         foreach my $message_hashref ( @$messages ) {
-            next if $message_hashref->{'-scope'} && $message_hashref->{'-scope'} ne $limiting_params->{'-scope'};
+	    if ( ref( $message_hashref->{'-scope'} ) ) {
+	        next if ! grep { $_ eq $limiting_params->{'-scope'} } @{$message_hashref->{'-scope'}};
+	    } else {
+                next if $message_hashref->{'-scope'} && $message_hashref->{'-scope'} ne $limiting_params->{'-scope'};
+            }
             if ( $for_template ) {
                 push @$matching_messages, {
                         $class_key    => $message_hashref->{'-classification'},

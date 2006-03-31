@@ -1,5 +1,10 @@
 Revision history for CGI-Application-Plugin-MessageStack
 
+Fri Mar 31 10:15:16 EST 2006  Jason@Purdy.INFO
+  * 0.33
+   * Added support for arrayrefs for the -scope parameter
+   * Updated scope testing plan & files
+
 Wed Oct  5 10:03:50 EDT 2005  Jason@Purdy.INFO
   * 0.32
    * Fixed test file for TT (bad failures for versions < 0.09)

@@ -30,6 +30,10 @@ FILES: 02-check_output.t, TestAppOutput.pm, output.TMPL
  * same as before, but check scoping:
     - in 2nd request, scope info message for non-existent runmode
     - in 3rd request, check for ! message
+    - in 4th request, scope info message for arrayref runmodes
+    - in 5th request, check for message (1st arrayref value)
+    - in 6th request, check for message (2nd arrayref value)
+    - in 7th request, check for ! message
 FILES: 03-scope.t, TestAppScope.pm, output.TMPL
 
 * messages

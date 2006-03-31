@@ -3,7 +3,7 @@ NAME
     CGI::Application
 
 VERSION
-    Version 0.32
+    Version 0.33
 
 SYNOPSIS
     This plugin gives you a few support methods that you can call within
