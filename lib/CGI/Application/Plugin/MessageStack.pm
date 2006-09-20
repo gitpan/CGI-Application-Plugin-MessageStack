@@ -12,7 +12,7 @@ CGI::Application::Plugin::MessageStack - A message stack for your CGI::Applicati
 
 =head1 VERSION
 
-Version 0.33
+Version 0.34
 
 =cut
 
@@ -34,7 +34,7 @@ sub import {
     goto &Exporter::import;
 }
 
-$VERSION = '0.33';
+$VERSION = '0.34';
 
 =head1 SYNOPSIS
 

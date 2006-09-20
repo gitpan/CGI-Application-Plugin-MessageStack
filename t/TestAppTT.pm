@@ -4,7 +4,7 @@ use base 'CGI::Application';
 
 use CGI::Application::Plugin::Session;
 use CGI::Application::Plugin::MessageStack;
-use CGI::Application::Plugin::TT;
+use CGI::Application::Plugin::TT 0.09;
 
 ## TEST PLAN ##
 # * cgiapp w/ html-template
